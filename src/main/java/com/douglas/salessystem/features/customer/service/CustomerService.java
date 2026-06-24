@@ -23,28 +23,32 @@ public class CustomerService {
 
     public CustomerResponseDTO create(CustomerRequestDTO dto) {
 
-        if (dto.cpf() != null &&
-                repository.existsByCpf(dto.cpf())) {
-            throw new IllegalArgumentException("CPF already registered.");
+        if (repository.existsByCpf(dto.cpf())) {
+            throw new IllegalArgumentException(
+                    "CPF already registered."
+            );
         }
 
-        if (dto.email() != null &&
-                repository.existsByEmail(dto.email())) {
-            throw new IllegalArgumentException("Email already registered.");
+        if (repository.existsByEmail(dto.email())) {
+            throw new IllegalArgumentException(
+                    "Email already registered."
+            );
         }
 
         Customer customer = mapper.toEntity(dto);
 
-        Customer saved = repository.save(customer);
+        Customer savedCustomer = repository.save(customer);
 
-        return mapper.toResponse(saved);
+        return mapper.toResponse(savedCustomer);
     }
 
     public CustomerResponseDTO findById(UUID id) {
 
         Customer customer = repository.findById(id)
                 .orElseThrow(() ->
-                        new NotFoundException("Customer not found"));
+                        new NotFoundException(
+                                "Customer not found."
+                        ));
 
         return mapper.toResponse(customer);
     }
@@ -59,11 +63,30 @@ public class CustomerService {
 
     public CustomerResponseDTO update(
             UUID id,
-            CustomerRequestDTO dto) {
+            CustomerRequestDTO dto
+    ) {
 
         Customer customer = repository.findById(id)
                 .orElseThrow(() ->
-                        new NotFoundException("Customer not found"));
+                        new NotFoundException(
+                                "Customer not found."
+                        ));
+
+        if (!customer.getCpf().equals(dto.cpf())
+                && repository.existsByCpf(dto.cpf())) {
+
+            throw new IllegalArgumentException(
+                    "CPF already registered."
+            );
+        }
+
+        if (!customer.getEmail().equals(dto.email())
+                && repository.existsByEmail(dto.email())) {
+
+            throw new IllegalArgumentException(
+                    "Email already registered."
+            );
+        }
 
         customer.setName(dto.name());
         customer.setCpf(dto.cpf());
@@ -71,21 +94,25 @@ public class CustomerService {
         customer.setPhone(dto.phone());
 
         if (dto.address() != null) {
+
             customer.setAddress(
                     addressMapper.toEntity(dto.address())
             );
         }
 
-        Customer updated = repository.save(customer);
+        Customer updatedCustomer =
+                repository.save(customer);
 
-        return mapper.toResponse(updated);
+        return mapper.toResponse(updatedCustomer);
     }
 
     public void delete(UUID id) {
 
         Customer customer = repository.findById(id)
                 .orElseThrow(() ->
-                        new NotFoundException("Customer not found"));
+                        new NotFoundException(
+                                "Customer not found."
+                        ));
 
         repository.delete(customer);
     }
