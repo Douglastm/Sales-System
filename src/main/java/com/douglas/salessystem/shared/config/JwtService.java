@@ -2,6 +2,8 @@ package com.douglas.salessystem.shared.config;
 
 import com.douglas.salessystem.features.user.model.User;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
@@ -36,5 +38,28 @@ public class JwtService {
                 )
                 .signWith(key)
                 .compact();
+    }
+
+    public String extractSubject(String token) {
+        return extractClaims(token).getSubject();
+    }
+
+    public boolean isTokenValid(String token, User user) {
+        try {
+            Claims claims = extractClaims(token);
+
+            return claims.getSubject().equals(user.getEmail())
+                    && claims.getExpiration().after(new Date());
+        } catch (JwtException | IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
+    private Claims extractClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
