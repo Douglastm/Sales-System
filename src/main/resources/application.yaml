@@ -3,18 +3,18 @@ spring:
     name: sales-system
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/sales_system
-    username: postgres
-    password: postgres
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/sales_system}
+    username: ${PGUSER:postgres}
+    password: ${PGPASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: ${SHOW_SQL:true}
     properties:
       hibernate:
         format_sql: true
 
 server:
-  port: 8080
+  port: ${PORT:8080}
